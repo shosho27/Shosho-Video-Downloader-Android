@@ -39,6 +39,7 @@ class MainActivity : AppCompatActivity() {
         binding.openDownloadsButton.setOnClickListener { openDownloadsFolder() }
         binding.shareButton.setOnClickListener { shareLastDownload() }
         binding.updateButton.setOnClickListener { onUpdateClicked() }
+        binding.cancelButton.setOnClickListener { onCancelClicked() }
 
         handleIncomingShare(intent)
     }
@@ -105,6 +106,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private var downloading = false
+    private var runningProcess: Process? = null
+    private var cancelledByUser = false
+
+    private fun onCancelClicked() {
+        cancelledByUser = true
+        runningProcess?.destroy()
+        binding.cancelButton.isEnabled = false
+        binding.statusText.text = "Cancelling…"
+    }
 
     private fun onDownloadClicked() {
         if (downloading) return
@@ -119,7 +129,9 @@ class MainActivity : AppCompatActivity() {
         val customName = binding.customNameInput.text?.toString()?.trim()?.takeIf { it.isNotEmpty() }
 
         downloading = true
+        cancelledByUser = false
         binding.downloadButton.isEnabled = false
+        binding.cancelButton.isEnabled = true
         binding.progressBar.progress = 0
         binding.logText.text = ""
         binding.statusText.text = "Preparing…"
@@ -131,6 +143,7 @@ class MainActivity : AppCompatActivity() {
                     url = url,
                     heightCap = selectedHeight,
                     customName = customName,
+                    onProcessStarted = { process -> runningProcess = process },
                     onProgress = { progress ->
                         runOnUiThread {
                             progress.percent?.let { binding.progressBar.progress = it }
@@ -142,7 +155,10 @@ class MainActivity : AppCompatActivity() {
                     },
                 )
                 runOnUiThread {
-                    if (result.success && result.savedUri != null) {
+                    if (cancelledByUser) {
+                        binding.statusText.text = "Cancelled."
+                        binding.progressBar.progress = 0
+                    } else if (result.success && result.savedUri != null) {
                         binding.statusText.text = "Saved to Downloads: ${result.savedFileName}"
                         binding.progressBar.progress = 100
                         lastDownloadUri = result.savedUri
@@ -155,12 +171,19 @@ class MainActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 runOnUiThread {
-                    binding.statusText.text = "Error: ${e.message}"
+                    binding.statusText.text = if (cancelledByUser) {
+                        "Cancelled."
+                    } else {
+                        "Error: ${e.message}"
+                    }
+                    binding.progressBar.progress = 0
                 }
             } finally {
+                runningProcess = null
                 runOnUiThread {
                     downloading = false
                     binding.downloadButton.isEnabled = true
+                    binding.cancelButton.isEnabled = false
                 }
             }
         }

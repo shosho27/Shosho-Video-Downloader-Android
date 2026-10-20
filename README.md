@@ -33,9 +33,14 @@ No extra permissions to grant, nothing else to configure.
 - **Custom file name:** optional field — leave it blank and the app picks
   the video's title (falling back to its description or uploader if the
   title is empty), or type your own name to use instead.
+- **Cancel:** stops a download in progress.
 - **Share:** after a download finishes, tap Share to send the file to any
   app that takes video (Google Drive, Messages, etc.).
-- **Open Downloads:** jumps straight to the phone's Downloads folder.
+- **Folder:** jumps straight to the phone's Downloads folder.
+- **Update Downloader:** pulls the latest yt-dlp release (checksum-verified)
+  without needing a new APK. Use this if downloads start failing - sites
+  change their player/challenge code often enough that the bundled copy
+  can go stale between app releases.
 - MKV downloads are automatically converted to MP4.
 
 ## How it works
@@ -46,6 +51,35 @@ default client needs it, and a bundled `ffmpeg` for merging streams and
 MKV→MP4 conversion. All three binaries are prebuilt Android ARM64 builds
 extracted from [ytdlnis](https://github.com/deniscerri/ytdlnis)'s own
 open-source release artifacts, bundled directly into this app's APK.
+
+## Status
+
+**Verified working, on a real device, for each of the six supported
+sites:** YouTube, Facebook, X, Instagram, TikTok, LinkedIn. Covers the
+default (no-sign-in) path and the QuickJS-solved fallback for YouTube's
+player challenge.
+
+**Known gaps / not built yet:**
+
+- **No sign-in / cookies support.** Only public videos work. The Mac app
+  can read cookies from a desktop browser for private/followers-only
+  content; Android can't read another app's cookie jar the same way, so
+  this would need its own cookies-file import flow. Not started.
+- **No scheduled/background update check.** Update Downloader is manual
+  only - there's no periodic check or notification when yt-dlp goes stale.
+- **ffmpeg conversion isn't cancellable.** Cancel stops the yt-dlp download
+  itself; if a download finished and MKV→MP4 conversion is already running,
+  Cancel won't interrupt that (conversions are normally fast, so this
+  hasn't come up in practice, but it's a real gap).
+- **No automated tests.** Everything above was verified manually in this
+  session, device-side, via adb. There's no test suite.
+
+**iOS/iPadOS version:** discussed, not started. Would be a from-scratch
+project (Swift, Xcode, no code reuse from this app beyond the general
+approach) - see this repo's issue tracker or ask Shane for current status.
+Distribution would use ad-hoc signing against his paid Apple Developer
+account rather than the App Store, since Apple's review consistently
+rejects video-downloader apps.
 
 ## Rebuilding from source
 

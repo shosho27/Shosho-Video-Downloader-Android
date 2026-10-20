@@ -236,12 +236,18 @@ object Engine {
         return connection.inputStream.bufferedReader().use { it.readText() }
     }
 
-    /** Runs on the calling thread - call from a background thread, not the UI thread. */
+    /**
+     * Runs on the calling thread - call from a background thread, not the UI
+     * thread. `onProcessStarted` hands back the live yt-dlp process so the
+     * caller can cancel it (`process.destroy()`) from the UI thread; without
+     * this there'd be no way to actually stop a running download.
+     */
     fun download(
         context: Context,
         url: String,
         heightCap: Int?,
         customName: String? = null,
+        onProcessStarted: (Process) -> Unit = {},
         onProgress: (Progress) -> Unit,
         onLog: (String) -> Unit,
     ): DownloadResult {
@@ -254,6 +260,7 @@ object Engine {
             .redirectErrorStream(true)
             .apply { environment().putAll(env(context)) }
             .start()
+        onProcessStarted(process)
 
         val log = StringBuilder()
         var savedPath: String? = null
