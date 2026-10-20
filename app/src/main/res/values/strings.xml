@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Video Downloader</string>
+    <string name="heading">Download a video, then save it to your phone</string>
+    <string name="subheading">YouTube · X / Twitter · Facebook · Instagram · TikTok · LinkedIn</string>
+    <string name="url_hint">Paste a video, Reel, or LinkedIn post link…</string>
+    <string name="paste">Paste</string>
+    <string name="download">Download</string>
+    <string name="cancel">Cancel</string>
+    <string name="open_downloads">Open Downloads</string>
+    <string name="share">Share</string>
+    <string name="custom_name_hint">Custom file name (optional)</string>
+    <string name="status_ready">Ready</string>
+</resources>

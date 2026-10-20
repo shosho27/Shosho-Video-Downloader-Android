@@ -1,0 +1,7 @@
+<resources>
+    <color name="shosho_background">#2B2B2B</color>
+    <color name="shosho_surface">#383838</color>
+    <color name="shosho_accent">#0078D7</color>
+    <color name="shosho_text">#F0F0F0</color>
+    <color name="shosho_text_secondary">#B0B0B0</color>
+</resources>

@@ -1,0 +1,8 @@
+<resources>
+    <style name="Theme.ShoshoVideoDownloader" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">@color/shosho_accent</item>
+        <item name="colorOnPrimary">@color/shosho_text</item>
+        <item name="android:windowBackground">@color/shosho_background</item>
+        <item name="android:statusBarColor">@color/shosho_background</item>
+    </style>
+</resources>
