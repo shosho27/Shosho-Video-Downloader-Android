@@ -47,6 +47,41 @@ MKV→MP4 conversion. All three binaries are prebuilt Android ARM64 builds
 extracted from [ytdlnis](https://github.com/deniscerri/ytdlnis)'s own
 open-source release artifacts, bundled directly into this app's APK.
 
+## Rebuilding from source
+
+Clone this repo - the bundled Python/yt-dlp/QuickJS/ffmpeg binaries are
+already checked in under `app/src/main/jniLibs/` and `app/src/main/assets/`,
+so no separate download or extraction step is needed for those.
+
+Toolchain setup (macOS, Homebrew) - each of these is a one-line install,
+nothing to keep backed up:
+
+```
+brew install openjdk@21
+brew install --cask android-commandlinetools
+brew install gradle
+
+export JAVA_HOME=/opt/homebrew/opt/openjdk@21
+export ANDROID_HOME=/opt/homebrew/share/android-commandlinetools
+export PATH="$JAVA_HOME/bin:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
+
+yes | sdkmanager --licenses
+sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+```
+
+Then from this directory: `gradle wrapper --gradle-version 8.13` (one time,
+to recreate `gradlew`), then `./gradlew assembleDebug` to build.
+
+**The one thing that can't be recreated** is the release signing keystore
+(`keystore/release.keystore` + `signing.properties`, both gitignored on
+purpose since they're the real signing credential). Android requires the
+same signing key to ship an update to people who already installed a build,
+so losing it means any future release needs a new keystore and everyone
+who installed v0.1.0 has to uninstall/reinstall instead of updating in
+place. Keep a copy of the `keystore/` folder and `signing.properties`
+somewhere safe outside this Mac - that's the only genuinely irreplaceable
+part of this project's local setup.
+
 ## License
 
 This app's own source is in this repository. The bundled runtime binaries
