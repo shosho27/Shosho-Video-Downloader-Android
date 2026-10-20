@@ -11,8 +11,12 @@ import android.util.Log
 import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
 import org.apache.commons.compress.archivers.zip.ZipFile
+import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
+import java.net.HttpURLConnection
+import java.net.URL
+import java.security.MessageDigest
 
 /**
  * Bundled yt-dlp + Python 3.14 + QuickJS + ffmpeg, extracted from ytdlnis's
@@ -42,6 +46,15 @@ object Engine {
     private fun pythonExe(context: Context) = File(nativeLibDir(context), "libpython.so")
     private fun qjsExe(context: Context) = File(nativeLibDir(context), "libqjs.so")
     private fun ffmpegExe(context: Context) = File(nativeLibDir(context), "libffmpeg.so")
+
+    /**
+     * yt-dlp's "yt-dlp" release asset (no suffix) is a platform-independent
+     * Python zipapp - no compiled binary, just needs a Python interpreter,
+     * which we already bundle. When present, this takes over from the
+     * bundled yt_dlp package under site/, the same way the Mac app prefers
+     * its own downloaded update over `python -m yt_dlp`.
+     */
+    private fun updatedYtDlp(context: Context) = File(context.filesDir, "yt-dlp-updated.pyz")
 
     /** One-time extraction of the zipped Python/ffmpeg runtimes and the yt_dlp site packages. */
     @Synchronized
@@ -132,8 +145,12 @@ object Engine {
         } else {
             "%(title,description,uploader).140B"
         }
-        return listOf(
-            pythonExe(context).absolutePath, "-m", "yt_dlp",
+        val ytDlpInvocation = if (updatedYtDlp(context).exists()) {
+            listOf(pythonExe(context).absolutePath, updatedYtDlp(context).absolutePath)
+        } else {
+            listOf(pythonExe(context).absolutePath, "-m", "yt_dlp")
+        }
+        return ytDlpInvocation + listOf(
             "--ignore-config", "--no-playlist", "--no-simulate", "--newline",
             "--progress", "--no-colors", "--no-overwrites", "--socket-timeout", "20",
             "--retries", "3", "--windows-filenames",
@@ -147,6 +164,76 @@ object Engine {
             "--js-runtimes", "quickjs:${qjsExe(context).absolutePath}",
             "--", url,
         )
+    }
+
+    class UpdateResult(val version: String?, val error: String?)
+
+    /**
+     * Downloads the latest yt-dlp release, verified against its published
+     * SHA2-256SUMS - same checksum-verification approach as the Mac app's
+     * updater. Sites change their player/challenge code often enough that
+     * the bundled yt_dlp package can go stale between app releases; this
+     * lets it be refreshed without shipping a new APK. Call from a
+     * background thread.
+     */
+    fun updateYtDlp(context: Context, onProgress: (String) -> Unit): UpdateResult {
+        return try {
+            onProgress("Checking for updates…")
+            val release = JSONObject(httpGetText("https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest"))
+            val version = release.getString("tag_name")
+            if (!Regex("""\d{4}\.\d{2}\.\d{2}(?:\.[\w.-]+)?""").matches(version)) {
+                return UpdateResult(null, "The release did not contain a valid version.")
+            }
+            val root = "https://github.com/yt-dlp/yt-dlp/releases/download/$version/"
+            val checksums = httpGetText(root + "SHA2-256SUMS")
+            val expected = checksums.lineSequence()
+                .map { it.trim().split(Regex("""\s+""")) }
+                .firstOrNull { it.size == 2 && it[1].trimStart('*') == "yt-dlp" }
+                ?.get(0)?.lowercase()
+            if (expected == null || !Regex("[0-9a-f]{64}").matches(expected)) {
+                return UpdateResult(null, "The release is missing its verification checksum.")
+            }
+
+            onProgress("Downloading yt-dlp $version…")
+            val tempFile = File(context.cacheDir, "yt-dlp-update.tmp")
+            val digest = MessageDigest.getInstance("SHA-256")
+            val connection = URL(root + "yt-dlp").openConnection() as HttpURLConnection
+            connection.connectTimeout = 20_000
+            connection.readTimeout = 20_000
+            connection.inputStream.use { input ->
+                FileOutputStream(tempFile).use { out ->
+                    val buffer = ByteArray(256 * 1024)
+                    while (true) {
+                        val read = input.read(buffer)
+                        if (read == -1) break
+                        out.write(buffer, 0, read)
+                        digest.update(buffer, 0, read)
+                    }
+                }
+            }
+            val actual = digest.digest().joinToString("") { "%02x".format(it) }
+            if (actual != expected) {
+                tempFile.delete()
+                return UpdateResult(null, "The downloaded file didn't match its checksum.")
+            }
+
+            val target = updatedYtDlp(context)
+            tempFile.copyTo(target, overwrite = true)
+            tempFile.delete()
+            target.setExecutable(true, false)
+            target.setReadable(true, false)
+            UpdateResult(version, null)
+        } catch (e: Exception) {
+            UpdateResult(null, e.message ?: "Update failed.")
+        }
+    }
+
+    private fun httpGetText(url: String): String {
+        val connection = URL(url).openConnection() as HttpURLConnection
+        connection.connectTimeout = 15_000
+        connection.readTimeout = 15_000
+        connection.setRequestProperty("User-Agent", "Shosho-Video-Downloader")
+        return connection.inputStream.bufferedReader().use { it.readText() }
     }
 
     /** Runs on the calling thread - call from a background thread, not the UI thread. */

@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:padding="16dp">
 
         <TextView
             android:id="@+id/heading"
@@ -17,17 +17,17 @@
             android:layout_height="wrap_content"
             android:text="@string/heading"
             android:textColor="@color/shosho_text"
-            android:textSize="18sp"
+            android:textSize="17sp"
             android:textStyle="bold" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="10dp"
             android:text="@string/subheading"
             android:textColor="@color/shosho_text_secondary"
-            android:textSize="13sp" />
+            android:textSize="12sp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -46,6 +46,7 @@
 
             <Button
                 android:id="@+id/pasteButton"
+                style="@style/CompactButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
@@ -56,13 +57,13 @@
             android:id="@+id/qualitySpinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp" />
+            android:layout_marginTop="10dp" />
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/customNameInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="8dp"
             android:hint="@string/custom_name_hint"
             android:textColor="@color/shosho_text"
             android:textColorHint="@color/shosho_text_secondary" />
@@ -72,7 +73,7 @@
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="10dp"
             android:max="100"
             android:progress="0" />
 
@@ -80,14 +81,15 @@
             android:id="@+id/statusText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="6dp"
             android:text="@string/status_ready"
-            android:textColor="@color/shosho_text" />
+            android:textColor="@color/shosho_text"
+            android:textSize="13sp" />
 
         <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="160dp"
-            android:layout_marginTop="12dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="8dp"
             android:background="@color/shosho_surface">
 
             <TextView
@@ -97,43 +99,43 @@
                 android:fontFamily="monospace"
                 android:padding="8dp"
                 android:textColor="@color/shosho_text_secondary"
-                android:textSize="11sp" />
+                android:textSize="10sp" />
         </ScrollView>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="10dp"
             android:orientation="horizontal">
 
             <Button
                 android:id="@+id/cancelButton"
-                android:layout_width="wrap_content"
+                style="@style/CompactButton"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:enabled="false"
                 android:text="@string/cancel" />
 
-            <Space
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1" />
-
             <Button
                 android:id="@+id/downloadButton"
-                style="@style/Widget.Material3.Button"
-                android:layout_width="wrap_content"
+                style="@style/CompactButton"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
                 android:text="@string/download" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="6dp"
             android:orientation="horizontal">
 
             <Button
                 android:id="@+id/openDownloadsButton"
+                style="@style/CompactButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -141,6 +143,7 @@
 
             <Button
                 android:id="@+id/shareButton"
+                style="@style/CompactButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
@@ -148,5 +151,13 @@
                 android:enabled="false"
                 android:text="@string/share" />
         </LinearLayout>
+
+        <Button
+            android:id="@+id/updateButton"
+            style="@style/CompactButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="@string/update_downloader" />
     </LinearLayout>
 </ScrollView>

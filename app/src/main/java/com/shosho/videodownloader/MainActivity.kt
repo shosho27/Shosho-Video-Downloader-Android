@@ -38,6 +38,7 @@ class MainActivity : AppCompatActivity() {
         binding.downloadButton.setOnClickListener { onDownloadClicked() }
         binding.openDownloadsButton.setOnClickListener { openDownloadsFolder() }
         binding.shareButton.setOnClickListener { shareLastDownload() }
+        binding.updateButton.setOnClickListener { onUpdateClicked() }
 
         handleIncomingShare(intent)
     }
@@ -52,6 +53,25 @@ class MainActivity : AppCompatActivity() {
         val sharedText = intent.getStringExtra(Intent.EXTRA_TEXT) ?: return
         val url = SiteRules.extractUrl(sharedText) ?: return
         binding.urlInput.setText(url)
+    }
+
+    private fun onUpdateClicked() {
+        if (downloading) return
+        binding.updateButton.isEnabled = false
+        binding.statusText.text = "Checking for updates…"
+        thread {
+            val result = Engine.updateYtDlp(applicationContext) { message ->
+                runOnUiThread { binding.statusText.text = message }
+            }
+            runOnUiThread {
+                binding.statusText.text = if (result.version != null) {
+                    "Downloader ${result.version} installed. Ready for your next download."
+                } else {
+                    "Update failed: ${result.error}"
+                }
+                binding.updateButton.isEnabled = true
+            }
+        }
     }
 
     private var lastDownloadUri: Uri? = null

@@ -6,8 +6,9 @@
     <string name="paste">Paste</string>
     <string name="download">Download</string>
     <string name="cancel">Cancel</string>
-    <string name="open_downloads">Open Downloads</string>
+    <string name="open_downloads">Downloads</string>
     <string name="share">Share</string>
     <string name="custom_name_hint">Custom file name (optional)</string>
+    <string name="update_downloader">Update Downloader</string>
     <string name="status_ready">Ready</string>
 </resources>

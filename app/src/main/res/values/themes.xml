@@ -5,4 +5,17 @@
         <item name="android:windowBackground">@color/shosho_background</item>
         <item name="android:statusBarColor">@color/shosho_background</item>
     </style>
+
+    <!-- ~20% smaller than Material's default button (48dp min height,
+         generous internal insets) so the full interface fits on screen
+         without scrolling past the Update Downloader button. -->
+    <style name="CompactButton" parent="Widget.Material3.Button">
+        <item name="android:minHeight">38dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:paddingTop">6dp</item>
+        <item name="android:paddingBottom">6dp</item>
+        <item name="android:textSize">13sp</item>
+    </style>
 </resources>
