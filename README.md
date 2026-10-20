@@ -7,6 +7,12 @@ phone's Downloads folder.
 
 Sideloaded only. Not on the Play Store.
 
+Free, open source, no account, no ads, no tracking. This is a general-purpose
+tool, the same category as yt-dlp, NewPipe, and Seal — it doesn't host or
+index anyone's content. What you download and what you do with it is your
+own call: respect copyright, respect the platforms' terms of service, and
+use it responsibly.
+
 ## Installing
 
 1. Download the `.apk` file to your phone.
