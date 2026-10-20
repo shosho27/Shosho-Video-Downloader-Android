@@ -74,12 +74,36 @@ player challenge.
 - **No automated tests.** Everything above was verified manually in this
   session, device-side, via adb. There's no test suite.
 
-**iOS/iPadOS version:** discussed, not started. Would be a from-scratch
-project (Swift, Xcode, no code reuse from this app beyond the general
-approach) - see this repo's issue tracker or ask Shane for current status.
-Distribution would use ad-hoc signing against his paid Apple Developer
-account rather than the App Store, since Apple's review consistently
-rejects video-downloader apps.
+## iOS/iPadOS version
+
+Discussed, not started - no code written, no repo created yet. Shane has
+no iPhone; testing would happen on his iPads instead (same iOS platform
+and constraints). This section is the plan as discussed, kept here so it
+isn't lost between sessions.
+
+**Technically possible**, and one piece is actually easier than Android:
+iOS ships JavaScriptCore system-wide, so the YouTube-challenge-solver role
+QuickJS plays here wouldn't need a separate bundled engine at all. The
+rest of the engine (Python, yt-dlp, ffmpeg) would need to be embedded as
+linked frameworks rather than exec'd as standalone binaries the way
+Android's `ProcessBuilder` + `jniLibs` trick works - no equivalent
+subprocess-exec model on iOS, so this part is a real rewrite, not a port.
+
+**Distribution is the actual blocker, and the reason it's not the App
+Store:** Apple's review consistently rejects apps that download video from
+other platforms. Shane already has a paid Apple Developer Program
+membership, so the real path is **ad-hoc distribution**: build an `.ipa`,
+register each recipient's device UDID in the developer account (up to 100
+devices/year), install directly via Xcode - no App Store review at all,
+which sidesteps the policy entirely. TestFlight was considered and ruled
+out as the default path: it's more convenient (email invite, up to 10,000
+testers, no UDID collection) but goes through a lighter "Beta App Review"
+that still risks rejecting a downloader-type app.
+
+**Scope:** would be its own from-scratch project - separate repo, Swift,
+Xcode - not a port of this codebase. The only things carried over are the
+site rules/selector logic (same reasoning as `SiteRules.kt` here) and the
+distribution lessons above.
 
 ## Rebuilding from source
 
